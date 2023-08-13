@@ -1,6 +1,6 @@
 {
   "name": "react-supergrid",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/SuperGrid.js",
   "repository": "tscircuit/supergrid",
@@ -12,6 +12,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "transformation-matrix": "*"
+  },
   "devDependencies": {
     "@storybook/blocks": "^7.2.3",
     "@storybook/react": "^7.2.3",
