@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/SuperGrid.js",
+  "repository": "tscircuit/supergrid",
   "scripts": {
     "build": "tsup ./src --dts --sourcemap",
     "storybook": "storybook dev -p 6006",
