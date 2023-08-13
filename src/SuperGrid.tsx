@@ -11,6 +11,7 @@ export interface SuperGridProps {
   screenSpaceCellSize?: number
   majorColor?: string
   minorColor?: string
+  stringifyCoord?: (x: number, y: number, cellSize?: number) => string
 }
 
 function roundPointToZ(Z: number, position: { x: number; y: number }) {
@@ -18,6 +19,19 @@ function roundPointToZ(Z: number, position: { x: number; y: number }) {
     x: Math.round(position.x / Z) * Z,
     y: Math.round(position.y / Z) * Z,
   }
+}
+
+function toSI(value: number, Z: number = 1) {
+  if (value < 0.0001) return "0m"
+  if (value < 0) return "-" + toSI(-value)
+
+  if (value > 1e3) return Math.floor(value / 1000) + "km"
+  if (value > 1 && Z > 1) return Math.round(value) + "m"
+  if (value > 1 && Z <= 1) return value.toFixed(Math.ceil(-Math.log10(Z))) + "m"
+  if (value < 1 && Z >= 1 / 1000) return Math.round(value * 1000) + "mm"
+  if (value < 1 && Z < 1 / 1000)
+    return (value * 1000).toFixed(Math.ceil(-Math.log10(Z * 1000))) + "mm"
+  return ""
 }
 
 export const SuperGrid = (props: SuperGridProps) => {
@@ -29,6 +43,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     width,
     height,
     screenSpaceCellSize = 200,
+    stringifyCoord = (x, y, Z) => `${toSI(x, Z)}, ${toSI(y, Z)}`,
   } = props
 
   const cellScreenWidth = Math.ceil(width / screenSpaceCellSize) + 1
@@ -85,11 +100,7 @@ export const SuperGrid = (props: SuperGridProps) => {
         for (y = start.y; y <= end.y; y += cellSize) {
           const point = applyToPoint(props.transform, { x, y })
           ctx.font = `12px sans-serif`
-          ctx.fillText(
-            `${x.toFixed(1)}, ${y.toFixed(1)}`,
-            point.x + 2,
-            point.y - 2
-          )
+          ctx.fillText(stringifyCoord(x, y, z), point.x + 2, point.y - 2)
         }
       }
     }
@@ -134,10 +145,12 @@ export const SuperGrid = (props: SuperGridProps) => {
     const projMousePos = applyToPoint(props.transform, mousePos)
     ctx.font = `12px sans-serif`
     ctx.fillText(
-      `${mousePos.x.toFixed(1)}, ${mousePos.y.toFixed(1)}`,
+      stringifyCoord(mousePos.x, mousePos.y, Z),
       projMousePos.x + 2,
       projMousePos.y - 2
     )
+    ctx.strokeStyle = majorColor
+    ctx.strokeRect(projMousePos.x - 5, projMousePos.y - 5, 10, 10)
   }, [ref, props.transform, mousePos])
 
   return (
