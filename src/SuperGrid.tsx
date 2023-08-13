@@ -13,6 +13,10 @@ export interface SuperGridProps {
   minorColor?: string
 }
 
+const BASE = 5
+const LOG_BASE = Math.log(BASE)
+const baseLog = (x) => Math.log(x) / LOG_BASE
+
 export const SuperGrid = (props: SuperGridProps) => {
   const ref = useRef<HTMLCanvasElement>(null)
   const {
@@ -73,8 +77,6 @@ export const SuperGrid = (props: SuperGridProps) => {
     ) {
       const cellSize = z
       let x: number, y: number
-      let lineStart: { x: number; y: number }
-      let lineEnd: { x: number; y: number }
       for (x = start.x; x <= end.x; x += cellSize) {
         for (y = start.y; y <= end.y; y += cellSize) {
           const point = applyToPoint(props.transform, { x, y })
@@ -116,6 +118,8 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.strokeStyle = majorColor
     drawGridLines(Z, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
     drawGridText(NZ, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
+    ctx.globalAlpha = 1 - Zp
+    drawGridLines(NZ / 10, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
     ctx.globalAlpha = 1 - Zp
     ctx.strokeStyle = minorColor
     drawGridLines(Z / 10, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
