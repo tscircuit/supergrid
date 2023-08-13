@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { type Matrix, applyToPoint, inverse } from "transformation-matrix"
 
 export interface SuperGridProps {
@@ -13,12 +13,16 @@ export interface SuperGridProps {
   minorColor?: string
 }
 
-const BASE = 5
-const LOG_BASE = Math.log(BASE)
-const baseLog = (x) => Math.log(x) / LOG_BASE
+function roundPointToZ(Z: number, position: { x: number; y: number }) {
+  return {
+    x: Math.round(position.x / Z) * Z,
+    y: Math.round(position.y / Z) * Z,
+  }
+}
 
 export const SuperGrid = (props: SuperGridProps) => {
   const ref = useRef<HTMLCanvasElement>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const {
     majorColor = "rgba(0,0,0,0.2)",
     minorColor = "rgba(0,0,0,0.1)",
@@ -125,7 +129,37 @@ export const SuperGrid = (props: SuperGridProps) => {
     drawGridLines(Z / 10, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
     ctx.globalAlpha = Math.max(((1 - Zp) * 10 - 5) / 5, 0)
     drawGridText(NZ / 10, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
-  }, [ref, props.transform])
 
-  return <canvas ref={ref} width={props.width} height={props.height} />
+    ctx.globalAlpha = 0.5
+    const projMousePos = applyToPoint(props.transform, mousePos)
+    ctx.font = `12px sans-serif`
+    ctx.fillText(
+      `${mousePos.x.toFixed(1)}, ${mousePos.y.toFixed(1)}`,
+      projMousePos.x + 2,
+      projMousePos.y - 2
+    )
+  }, [ref, props.transform, mousePos])
+
+  return (
+    <canvas
+      onMouseUp={(e) => {
+        if (!ref.current) return
+        if (e.button !== 1) return
+        const Z =
+          screenSpaceCellSize /
+          10 /
+          10 ** Math.floor(Math.log10(props.transform.a))
+        const rect = ref.current.getBoundingClientRect()
+        const projM = applyToPoint(inverse(props.transform), {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        })
+        const m = roundPointToZ(Z, projM)
+        setMousePos(m)
+      }}
+      ref={ref}
+      width={props.width}
+      height={props.height}
+    />
+  )
 }
