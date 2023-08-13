@@ -4,7 +4,7 @@ Easily create a grid with infinitely nesting subgrid cells.
 
 ```ts
 import React from "react"
-import { SuperGrid } from "supergrid"
+import { SuperGrid } from "react-supergrid"
 import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
 
 export const MyApp = () => {
