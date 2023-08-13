@@ -7,7 +7,7 @@ export const Basic = () => {
 
   return (
     <div ref={ref}>
-      <SuperGrid width={500} height={500} transform={transform} />
+      <SuperGrid width={1000} height={1000} transform={transform} />
     </div>
   )
 }

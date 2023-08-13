@@ -20,11 +20,11 @@ export const SuperGrid = (props: SuperGridProps) => {
     minorColor = "rgba(0,0,0,0.1)",
     width,
     height,
-    screenSpaceCellSize = 50,
+    screenSpaceCellSize = 200,
   } = props
 
-  const cellScreenWidth = Math.ceil(width / screenSpaceCellSize)
-  const cellScreenHeight = Math.ceil(height / screenSpaceCellSize)
+  const cellScreenWidth = Math.ceil(width / screenSpaceCellSize) + 1
+  const cellScreenHeight = Math.ceil(height / screenSpaceCellSize) + 1
 
   useEffect(() => {
     if (!ref.current) return
@@ -46,7 +46,6 @@ export const SuperGrid = (props: SuperGridProps) => {
       let lineStart: { x: number; y: number }
       let lineEnd: { x: number; y: number }
 
-      ctx.strokeStyle = majorColor
       // Vertical Lines
       for (x = start.x; x <= end.x; x += cellSize) {
         lineStart = applyToPoint(props.transform, { x, y: start.y })
@@ -67,30 +66,61 @@ export const SuperGrid = (props: SuperGridProps) => {
       }
     }
 
+    function drawGridText(
+      z: number,
+      start: { x: number; y: number },
+      end: { x: number; y: number }
+    ) {
+      const cellSize = z
+      let x: number, y: number
+      let lineStart: { x: number; y: number }
+      let lineEnd: { x: number; y: number }
+      for (x = start.x; x <= end.x; x += cellSize) {
+        for (y = start.y; y <= end.y; y += cellSize) {
+          const point = applyToPoint(props.transform, { x, y })
+          ctx.font = `12px sans-serif`
+          ctx.fillText(
+            `${x.toFixed(1)}, ${y.toFixed(1)}`,
+            point.x + 2,
+            point.y - 2
+          )
+        }
+      }
+    }
+
     ctx.clearRect(0, 0, width, height)
 
     const topLeft = applyToPoint(inverse(props.transform), { x: 0, y: 0 })
-    const roundedOffsetTopLeft = {
+
+    const zRoundedOffsetTopLeft = {
       x: Math.floor((topLeft.x - Z) / Z) * Z,
       y: Math.floor((topLeft.y - Z) / Z) * Z,
     }
-    const roundedOffsetBottomRight = {
-      x: roundedOffsetTopLeft.x + Z * cellScreenWidth,
-      y: roundedOffsetTopLeft.y + Z * cellScreenHeight,
+    const zRoundedOffsetBottomRight = {
+      x: zRoundedOffsetTopLeft.x + Z * cellScreenWidth,
+      y: zRoundedOffsetTopLeft.y + Z * cellScreenHeight,
+    }
+
+    const textN = 5
+    const NZ = Z * textN
+    const NZRoundedOffsetTopLeft = {
+      x: Math.floor((topLeft.x - NZ) / NZ) * NZ,
+      y: Math.floor((topLeft.y - NZ) / NZ) * NZ,
+    }
+    const NZRoundedOffsetBottomRight = {
+      x: NZRoundedOffsetTopLeft.x + NZ * cellScreenWidth,
+      y: NZRoundedOffsetTopLeft.y + NZ * cellScreenHeight,
     }
 
     ctx.globalAlpha = 1
-    drawGridLines(Z, roundedOffsetTopLeft, roundedOffsetBottomRight)
+    ctx.strokeStyle = majorColor
+    drawGridLines(Z, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
+    drawGridText(NZ, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
     ctx.globalAlpha = 1 - Zp
-    drawGridLines(Z / 10, roundedOffsetTopLeft, roundedOffsetBottomRight)
-
-    // Label major grid line intersections
-    // ctx.fillStyle = majorColor
-    // for (let i = 0; i <= majorGridLines; i++) {
-    //   const x = i * majorGridCellSize
-    //   const point = applyToPoint(props.transform, { x, y: 0 })
-    //   ctx.fillText(`(${x.toFixed(2)}, 0)`, point.x, point.y)
-    // }
+    ctx.strokeStyle = minorColor
+    drawGridLines(Z / 10, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
+    ctx.globalAlpha = Math.max((1 - Zp) * 10 - 8, 0)
+    drawGridText(NZ / 10, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
   }, [ref, props.transform])
 
   return <canvas ref={ref} width={props.width} height={props.height} />
