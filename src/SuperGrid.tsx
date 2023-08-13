@@ -123,7 +123,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.globalAlpha = 1 - Zp
     ctx.strokeStyle = minorColor
     drawGridLines(Z / 10, zRoundedOffsetTopLeft, zRoundedOffsetBottomRight)
-    ctx.globalAlpha = Math.max((1 - Zp) * 10 - 8, 0)
+    ctx.globalAlpha = Math.max(((1 - Zp) * 10 - 5) / 5, 0)
     drawGridText(NZ / 10, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
   }, [ref, props.transform])
 
