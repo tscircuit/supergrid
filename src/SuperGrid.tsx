@@ -21,9 +21,9 @@ function roundPointToZ(Z: number, position: { x: number; y: number }) {
   }
 }
 
-function toSI(value: number, Z: number = 1): string {
+export function toMeterSI(value: number, Z: number = 1): string {
   if (value < 0.0001) return "0m"
-  if (value < 0) return "-" + toSI(-value)
+  if (value < 0) return "-" + toMeterSI(-value)
 
   if (value > 1e3) return Math.floor(value / 1000) + "km"
   if (value > 1 && Z > 1) return Math.round(value) + "m"
@@ -32,6 +32,10 @@ function toSI(value: number, Z: number = 1): string {
   if (value < 1 && Z < 1 / 1000)
     return (value * 1000).toFixed(Math.ceil(-Math.log10(Z * 1000))) + "mm"
   return ""
+}
+
+export function toMMSI(value: number, Z: number = 1): string {
+  return toMeterSI(value / 1000, Z / 1000)
 }
 
 export const SuperGrid = (props: SuperGridProps) => {
@@ -43,7 +47,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     width,
     height,
     screenSpaceCellSize = 200,
-    stringifyCoord = (x, y, Z) => `${toSI(x, Z)}, ${toSI(y, Z)}`,
+    stringifyCoord = (x, y, Z) => `${toMeterSI(x, Z)}, ${toMeterSI(y, Z)}`,
   } = props
 
   const cellScreenWidth = Math.ceil(width / screenSpaceCellSize) + 1
