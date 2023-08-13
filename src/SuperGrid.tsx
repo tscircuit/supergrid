@@ -21,7 +21,7 @@ function roundPointToZ(Z: number, position: { x: number; y: number }) {
   }
 }
 
-function toSI(value: number, Z: number = 1) {
+function toSI(value: number, Z: number = 1): string {
   if (value < 0.0001) return "0m"
   if (value < 0) return "-" + toSI(-value)
 
