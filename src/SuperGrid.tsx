@@ -148,7 +148,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.globalAlpha = Math.max(((1 - Zp) * 10 - 5) / 5, 0)
     drawGridText(NZ / 10, NZRoundedOffsetTopLeft, NZRoundedOffsetBottomRight)
 
-    ctx.globalAlpha = 0.5
+    ctx.globalAlpha = 1
     const projMousePos = applyToPoint(props.transform, mousePos)
     ctx.font = `12px sans-serif`
     ctx.fillStyle = textColor
