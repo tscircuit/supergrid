@@ -22,8 +22,8 @@ function roundPointToZ(Z: number, position: { x: number; y: number }) {
 }
 
 export function toMeterSI(value: number, Z: number = 1): string {
-  if (value < 0.0001) return "0m"
   if (value < 0) return "-" + toMeterSI(-value)
+  if (value < 0.000001) return "0m"
 
   if (value > 1e3) return Math.floor(value / 1000) + "km"
   if (value > 1 && Z > 1) return Math.round(value) + "m"
@@ -103,6 +103,7 @@ export const SuperGrid = (props: SuperGridProps) => {
       for (x = start.x; x <= end.x; x += cellSize) {
         for (y = start.y; y <= end.y; y += cellSize) {
           const point = applyToPoint(props.transform, { x, y })
+          ctx.fillStyle = majorColor
           ctx.font = `12px sans-serif`
           ctx.fillText(stringifyCoord(x, y, z), point.x + 2, point.y - 2)
         }
@@ -148,6 +149,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.globalAlpha = 0.5
     const projMousePos = applyToPoint(props.transform, mousePos)
     ctx.font = `12px sans-serif`
+    ctx.fillStyle = majorColor
     ctx.fillText(
       stringifyCoord(mousePos.x, mousePos.y, Z),
       projMousePos.x + 2,
