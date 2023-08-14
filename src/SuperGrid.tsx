@@ -9,6 +9,7 @@ export interface SuperGridProps {
   width: number
   height: number
   screenSpaceCellSize?: number
+  textColor?: string
   majorColor?: string
   minorColor?: string
   stringifyCoord?: (x: number, y: number, cellSize?: number) => string
@@ -44,6 +45,7 @@ export const SuperGrid = (props: SuperGridProps) => {
   const {
     majorColor = "rgba(0,0,0,0.2)",
     minorColor = "rgba(0,0,0,0.1)",
+    textColor = props.majorColor ?? "rgba(0,0,0,0.5)",
     width,
     height,
     screenSpaceCellSize = 200,
@@ -103,7 +105,7 @@ export const SuperGrid = (props: SuperGridProps) => {
       for (x = start.x; x <= end.x; x += cellSize) {
         for (y = start.y; y <= end.y; y += cellSize) {
           const point = applyToPoint(props.transform, { x, y })
-          ctx.fillStyle = majorColor
+          ctx.fillStyle = textColor
           ctx.font = `12px sans-serif`
           ctx.fillText(stringifyCoord(x, y, z), point.x + 2, point.y - 2)
         }
@@ -149,7 +151,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.globalAlpha = 0.5
     const projMousePos = applyToPoint(props.transform, mousePos)
     ctx.font = `12px sans-serif`
-    ctx.fillStyle = majorColor
+    ctx.fillStyle = textColor
     ctx.fillText(
       stringifyCoord(mousePos.x, mousePos.y, Z),
       projMousePos.x + 2,
@@ -159,23 +161,26 @@ export const SuperGrid = (props: SuperGridProps) => {
     ctx.strokeRect(projMousePos.x - 5, projMousePos.y - 5, 10, 10)
   }, [ref, props.transform, mousePos])
 
+  const onMouseSetTarget = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!ref.current) return
+    const Z =
+      screenSpaceCellSize / 10 / 10 ** Math.floor(Math.log10(props.transform.a))
+    const rect = ref.current.getBoundingClientRect()
+    const projM = applyToPoint(inverse(props.transform), {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    })
+    const m = roundPointToZ(Z, projM)
+    setMousePos(m)
+  }
+
   return (
     <canvas
       onMouseUp={(e) => {
-        if (!ref.current) return
         if (e.button !== 1) return
-        const Z =
-          screenSpaceCellSize /
-          10 /
-          10 ** Math.floor(Math.log10(props.transform.a))
-        const rect = ref.current.getBoundingClientRect()
-        const projM = applyToPoint(inverse(props.transform), {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        })
-        const m = roundPointToZ(Z, projM)
-        setMousePos(m)
+        onMouseSetTarget(e)
       }}
+      onDoubleClick={onMouseSetTarget}
       ref={ref}
       width={props.width}
       height={props.height}
