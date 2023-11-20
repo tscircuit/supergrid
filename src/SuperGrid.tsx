@@ -179,7 +179,7 @@ export const SuperGrid = (props: SuperGridProps) => {
     )
     ctx.strokeStyle = majorColor
     ctx.strokeRect(projMousePos.x - 5, projMousePos.y - 5, 10, 10)
-  }, [ref, props.transform, mousePos])
+  }, [ref, props.transform, mousePos, width, height])
 
   const onMouseSetTarget = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!ref.current) return
