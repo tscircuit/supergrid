@@ -37,12 +37,12 @@ function roundPointToZ(Z: number, position: { x: number; y: number }) {
 }
 
 export function toMeterSI(value: number, Z: number = 1): string {
-  if (value < 0) return "-" + toMeterSI(-value)
+  if (value < 0) return "-" + toMeterSI(-value, Z)
   if (value < 0.000001) return "0m"
 
   if (value > 1e3) return Math.floor(value / 1000) + "km"
-  if (value > 1 && Z > 1) return Math.round(value) + "m"
-  if (value > 1 && Z <= 1) return value.toFixed(Math.ceil(-Math.log10(Z))) + "m"
+  if (value >= 1 && Z > 1) return Math.round(value) + "m"
+  if (value >= 1 && Z <= 1) return value.toFixed(Math.ceil(-Math.log10(Z))) + "m"
   if (value < 1 && Z >= 1 / 1000) return Math.round(value * 1000) + "mm"
   if (value < 1 && Z < 1 / 1000)
     return (value * 1000).toFixed(Math.ceil(-Math.log10(Z * 1000))) + "mm"
